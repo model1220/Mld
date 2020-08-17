@@ -1,1 +1,205 @@
-pv options
+
+
+编程语言知识与应用
+1)    原始数据类型与字长
+2)    流程控制语句
+3)    异常体系
+4)    集合体系结构/迭代器
+5)    泛型
+6)    线程体系结构
+7)    文件/流体系结构/NIO
+8)    正则表达式
+9)    反射体系结构
+10) classloader层次结构设计/类初始化过程
+11) GC原理
+12) Java安全类库/安全管理器
+13) JDBC/SQL注入
+14) Socket
+15) Stream/MapReduce
+16) 了解多核并发、性能优化调优、CPU架构等
+
+
+
+1.1 原始数据类型与字长
+1.2 流程控制语句
+1.3 异常
+https://blog.csdn.net/zhanaolu4821/article/details/81012382
+ 
+1.3.1 try catch finally中的return
+finally块中的内容会先于try中的return语句执行，如果finall语句块中也有return语句的话，那么直接从finally中返回了，这也是不建议在finally中return的原因。
+try语句在返回前，将其他所有的操作执行完，保留好要返回的值，而后转入执行finally中的语句，而后分为以下三种情况：
+情况一：如果finally中有return语句，则会将try中的return语句”覆盖“掉，直接执行finally中的return语句，得到返回值，这样便无法得到try之前保留好的返回值。
+情况二：如果finally中没有return语句，也没有改变要返回值，则执行完finally中的语句后，会接着执行try中的return语句，返回之前保留的值。
+情况三：如果finally中没有return语句，但是改变了要返回的值，分以下两种情况，：
+    1）如果return的数据是基本数据类型或文本字符串，则在finally中对该基本数据的改变不起作用，try中的return语句依然会返回进入finally块之前保留的值。
+    
+    2）如果return的数据是引用数据类型，而在finally中对该引用数据类型的属性值的改变起作用，try中的return语句返回的就是在finally中改变后的该属性的值。
+1.3.2 捕获异常
+系统根据该异常对象依次匹配catch子句，若匹配成功（抛出的异常对象的类型和catch子句的异常类的类型或者是该异常类的子类的类型一致），则运行其中catch代码块中的异常处理代码，一旦处理结束，那就意味着整个try-catch结束。含有多个catch子句，一旦其中一个catch子句与抛出的异常对象类型一致时，其他catch子句将不再有匹配异常对象的机会。
+1.4 集合体系
+https://blog.csdn.net/csp277/article/details/46462605
+ 
+1.5 泛型使用
+参考：
+https://www.jianshu.com/p/90948ff4a940
+
+<? super Dog>  集合中存放 Dog或其父类
+<? extends Animal>集合中存放 Animal或其子类
+型变：描述类型转换后的继承关系，协变 逆变 不变
+型变的目的是通过编译器限制方法调用，保证运行时类型安全。
+
+协变：消费安全 extents 限定通配符上界，保证安全读取
+逆变：生产安全 super 限定通配符下界， 保证安全写入
+
+假设Orange类是Fruit类的子类，以集合类List<T>为例：
+型变：用来描述类型转换后的继承关系（即协变、逆变和不变的统称）。比如：List<Orange>是List<Fruit>的子类型吗？答案是No，两者并没有关系，并不能相互读写数据。因此，型变是处理如List<Orange>(List<? extends Orange>)和List<Fruit>子类型关系的一种表达方式。
+
+协变(covariance)：满足条件诸如List<Orange>是List<? extends Fruit>的子类型时，称为协变。
+逆变(covariance)：满足条件List<Fruit>是List<? super Orange>的子类型时，称为逆变。
+不变(invariance)：表示List<Orange>和List<Fruit>不存在型变关系。
+1.6 Java 线程体系
+1.6.1 线程模型
+https://www.cnblogs.com/ITtangtang/p/7603238.html
+
+CountDownLatch 倒计时锁存：主线程等待其他工作线程结束
+CyclicBarrier 循环屏障：多个线程相互等待，直到所有线程都达到一个障碍点Barrier
+Semaphore 信号量
+Producer-consumer生产者/消费者
+
+使用场景：
+ 
+1.6.2 死锁
+https://www.runoob.com/java/thread-deadlock.html
+两个或两个以上的进程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去。
+
+线程死锁如何发生：
+1.因为系统资源不足。
+2.进程运行推进的顺序不合适。   
+3.资源分配不当。
+
+线程死锁条件：
+1.互斥条件：所谓互斥就是进程在某一时间内独占资源。
+2.请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。
+3.不剥夺条件:进程已获得资源，在末使用完之前，不能强行剥夺。
+4.循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。
+
+解除线程死锁：
+破坏一个条件即可。
+1.6.3 Volatile关键字
+https://www.cnblogs.com/dolphin0520/p/3920373.html
+
+volatile 轻量级同步机制
+《深入理解Java虚拟机：JVM高级特性与最佳实践（最新第二版）》12章
+1. 保证变量对所有线程的可见性，当一条线程修改了这个变量的值，新值对于其他线程来说是立即得知的。普通变量是需要通过主内存来完成线程间值传递。
+
+2. 禁止指令重排序优化。
+
+什么场景不适用volatile：
+当不满足一下两套规则运算场景时，仍要用synchronized来保证原子性：
+  运算结果并不依赖变量的当前值，或者能够确保只有单一线程修改变量的值。
+变量不需要与其他的状态变量共同参与不变约束。
+	
+1.6.4 Synchronized 如何加锁
+https://blog.csdn.net/u013142781/article/details/51697672
+尤其是如何对对象加锁。什么可以成为锁的对象。
+1.7 文件File
+1.7.1 File 会抛出异常
+ 
+
+1.7.2 NIO Non-blocking I/O
+https://tech.meituan.com/2016/11/04/nio.html
+https://mp.weixin.qq.com/s?__biz=MzU2NjIzNDk5NQ==&mid=2247483837&idx=1&sn=b51954fd4644feeddde61daed5d273b6&scene=21#wechat_redirect
+
+https://mp.weixin.qq.com/s/5SKgdkC0kaHN495psLd3Tg
+channel buffer
+1.8 正则表达式
+https://www.runoob.com/regexp/regexp-syntax.ht
+工具：https://c.runoob.com/
+https://c.runoob.com/front-end/854
+
+1.9 反射
+https://blog.csdn.net/BuddyUU/article/details/52458241
+https://www.jianshu.com/p/2315dda64ad2
+1.10 类加载、初始化
+https://blog.csdn.net/justloveyou_/article/details/72466105
+1.10.1 类及方法加载顺序：
+https://blog.csdn.net/hellorichen/article/details/53007716
+父类的静态方法
+父类静态初始化块
+子类静态初始化块
+父类非静态初始化块
+父类的构造方法
+子类非静态初始化块
+子类的构造方法
+1.10.2 被动引用不被初始化场景：
+https://www.jianshu.com/p/558750148f36
+
+通过子类引用父类的静态字段，只会触发父类的初始化，而不会触发子类的初始化。 
+定义对象数组，不会触发该类的初始化。 
+常量(static final声明的属性)在编译期间会存入调用类的常量池中，本质上并没有直接引用定义常量的类，不会触发定义常量所在的类。 
+通过类名获取Class对象（Class c_dog = Dog.class），不会触发类的初始化。 
+通过Class.forName加载指定类时，如果指定参数initialize为false时，也不会触发类初始化，其实这个参数是告诉虚拟机，是否要对类进行初始化。 
+通过ClassLoader默认的loadClass方法，也不会触发初始化动作；
+1.11 GC
+https://www.jianshu.com/p/5261a62e4d29
+ 
+1.11.1 内存模型：
+https://zhuanlan.zhihu.com/p/29881777
+《深入理解Java虚拟机：JVM高级特性与最佳实践（最新第二版）》2、3章
+
+
+1.11.2 gc算法：
+1.11.3 gc的根对象：
+（1）虚拟机栈中引用的对象（栈帧中的本地变量表）；
+（2）方法区中的常量引用的对象；
+（3）方法区中的类静态属性引用的对象；
+（4）本地方法栈中JNI（Native方法）的引用对象。
+（5）活跃线程。
+
+1.11.4 full Gc触发：
+（1）年老代（Tenured）被写满;
+
+（2）持久代（Perm）被写满;
+
+（3）System.gc()被显示调用;
+
+（4）上一次GC之后Heap的各域分配策略动态变化.
+
+1.12 Java安全类库、安全管理器
+https://developer.android.com/reference/java/lang/SecurityManager
+https://www.cnblogs.com/yiwangzhibujian/p/6207212.html
+1.12.1 SecurityManager应用场景：
+当运行未知的Java程序的时候，该程序可能有恶意代码（删除系统文件、重启系统等），为了防止运行恶意代码对系统产生影响，需要对运行的代码的权限进行控制，这时候就要启用Java安全管理器。
+1.12.2 默认配置文件及解释：
+ $JAVA_HOME/jre/lib/security/java.policy
+
+1.12.3 安全管理器配置原则：
+在启用安全管理器的时候，配置遵循以下基本原则：
+1	没有配置的权限表示没有。
+2	只能配置有什么权限，不能配置禁止做什么。
+3	同一种权限可多次配置，取并集。
+4	统一资源的多种权限可用逗号分割。
+
+1.13 SQL
+https://www.runoob.com/sql/sql-tutorial.html
+https://www.testwo.com/blog/6502
+1.13.1 SQL注入原理：
+1.	直接将代码插入到与SQL命令串联在一起并使得其以执行的用户输入变量。
+2.	将恶意代码注入要在表中存储或者作为原书据存储的字符串。
+1.13.2 SQL注入预防
+1.	普通用户与系统管理员用户的权限要有严格的区分。
+2.	强迫使用参数化语句
+3.	加强对用户输入的验证：参数化语句 存储过程等
+4.	使用SQL Server数据库自带的安全参数
+5.	多层环境如何防治SQL注入式攻击
+6.	使用专业的漏洞扫描工具来寻找可能被攻击的点
+1.14 Socket
+1.15 Stream/MapReduce
+1.16 了解多核并发、性能优化调优、CPU架构等
+《深入理解Java虚拟机：JVM高级特性与最佳实践（最新第二版）》4、5章
+Jdk 命令行工具用途。
+
+2 学习材料
+电子书：深入理解Java虚拟机：JVM高级特性与最佳实践（最新第二版）1.7
+
+
